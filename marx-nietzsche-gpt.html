@@ -81,6 +81,15 @@
   .microShown{opacity:1;pointer-events:auto;transition:opacity .35s ease}
   .tinyNode text{font-size:10px}
   .tinyNode circle{stroke:#0a0d10;stroke-width:1.5}
+
+  /* tooltip */
+  .tooltip{
+    position:absolute; left:0; top:0; transform:translate(-50%,-140%);
+    background:#10161b; border:1px solid var(--edge); border-radius:10px;
+    padding:8px 10px; font-size:12px; color:var(--text);
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+    pointer-events:none; white-space:nowrap; opacity:0; transition:opacity .12s ease;
+  }
 </style>
 </head>
 <body>
@@ -129,10 +138,18 @@
 
       <div class="legend" id="legend"></div>
       <div class="toolbar">
-        <button class="btn" id="resetBtn" title="Reset view">Reset</button>
-        <button class="btn" id="toggleConnect" aria-pressed="false" title="Show ring-to-ring connectors">Connect rings</button>
-        <button class="btn" id="toggleFrailty" aria-pressed="false" title="Show Fried criteria">Frailty details</button>
-        <button class="btn" id="toggleNM" aria-pressed="false" title="Toggle Nietzsche/Marx view">Nietzsche ⇄ Marx</button>
+        <button class="btn" id="resetBtn" title="Reset view">Reset (R)</button>
+        <button class="btn" id="toggleConnect" aria-pressed="false" title="Show ring-to-ring connectors">Connect rings (C)</button>
+        <button class="btn" id="toggleFrailty" aria-pressed="false" title="Show Fried criteria">Frailty details (F)</button>
+        <button class="btn" id="toggleNM" aria-pressed="false" title="Toggle Nietzsche/Marx view">Nietzsche ⇄ Marx (N)</button>
+      </div>
+
+      <div class="box">
+        <h2>Keyboard</h2>
+        <ul>
+          <li><strong>Tab</strong> to focus nodes, <strong>Enter/Space</strong> to activate.</li>
+          <li><strong>N</strong>: Nietzsche ⇄ Marx • <strong>C</strong>: Connect • <strong>F</strong>: Frailty • <strong>R</strong>: Reset</li>
+        </ul>
       </div>
     </aside>
 
@@ -182,6 +199,8 @@
           <text x="260" y="5" class="pill-text" text-anchor="middle">Ukubona</text>
         </g>
       </svg>
+      <!-- tooltip element -->
+      <div id="tip" class="tooltip" role="tooltip" aria-hidden="true"></div>
     </main>
   </div>
 
@@ -334,6 +353,7 @@ const frailtyNodesG  = document.getElementById('frailtyNodes');
 const frailtyArrowsG = document.getElementById('frailtyArrows');
 const toggleNM = document.getElementById('toggleNM');
 const outerCycleG = document.getElementById('outerCycle');
+const tip = document.getElementById('tip');
 
 /* ======================= State & Utils ======================= */
 let VIEW = 'default';
@@ -407,6 +427,14 @@ function drawOuter(){
     const ctrlx=midx*1.05, ctrly=midy*1.05; // gentle bow outward
     q.setAttribute('d','M '+sx+' '+sy+' Q '+ctrlx+' '+ctrly+' '+gx+' '+gy);
     q.setAttribute('class','cycle');
+    q.setAttribute('tabindex','0');
+    q.setAttribute('role','button');
+    q.setAttribute('aria-label','Fruit to seed: Systems cycles back to God');
+    q.addEventListener('mouseenter', (e)=> showTip(e, 'Fruit → Seed: Systems cycles back to God (our forebears are the fruit).'));
+    q.addEventListener('mousemove', (e)=> moveTip(e));
+    q.addEventListener('mouseleave', hideTip);
+    q.addEventListener('focus', (e)=> showTipFocusNearPath(q, 'Fruit → Seed: Systems cycles back to God (our forebears are the fruit).'));
+    q.addEventListener('blur', hideTip);
     outerCycleG.appendChild(q);
   }
 
@@ -508,6 +536,33 @@ function drawConnectors(on){
   }
 }
 
+/* ======================= Tooltip helpers ======================= */
+function showTip(evt, text){
+  tip.textContent = text;
+  tip.style.opacity = '1';
+  tip.setAttribute('aria-hidden','false');
+  moveTip(evt);
+}
+function moveTip(evt){
+  const rect = evt.currentTarget.ownerSVGElement.getBoundingClientRect();
+  const x = evt.clientX - rect.left;
+  const y = evt.clientY - rect.top;
+  tip.style.left = (rect.left + x) + 'px';
+  tip.style.top  = (rect.top + y) + 'px';
+}
+function hideTip(){
+  tip.style.opacity = '0';
+  tip.setAttribute('aria-hidden','true');
+}
+function showTipFocusNearPath(pathEl, text){
+  const bbox = pathEl.getBoundingClientRect();
+  tip.textContent = text;
+  tip.style.opacity = '1';
+  tip.setAttribute('aria-hidden','false');
+  tip.style.left = (bbox.left + bbox.width/2) + 'px';
+  tip.style.top  = (bbox.top) + 'px';
+}
+
 /* ======================= Handlers ======================= */
 function onOuterClick(key){
   const item=VIEWS[VIEW].outer.find(d=>d.key===key);
@@ -529,7 +584,7 @@ function onInnerClick(key){
   }
 }
 
-/* ======================= UI controls ======================= */
+/* ======================= UI controls & Hotkeys ======================= */
 resetBtn.addEventListener('click',()=>{ drawLegend(); drawOuter(); drawInner(false); });
 
 toggleConnectBtn.addEventListener('click',()=>{
@@ -551,6 +606,17 @@ toggleNM.addEventListener('click', ()=>{
   drawLegend();
   drawOuter();
   drawInner(false);
+});
+
+// Global hotkeys: N, C, F, R (ignore when typing in inputs/textareas)
+document.addEventListener('keydown', (e)=>{
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === 'n'){ e.preventDefault(); toggleNM.click(); }
+  if (k === 'c'){ e.preventDefault(); toggleConnectBtn.click(); }
+  if (k === 'f'){ e.preventDefault(); toggleFrailtyBtn.click(); }
+  if (k === 'r'){ e.preventDefault(); resetBtn.click(); }
 });
 
 /* ======================= Init + self-test ======================= */
