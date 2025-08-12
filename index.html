@@ -17,37 +17,42 @@
     h1{ font-size:clamp(1rem,2.5vw,1.4rem); letter-spacing:.1em; margin:0 0 1rem; text-align:center; color:#ddd }
     canvas{ max-width:86vmin; height:auto; aspect-ratio:4/1.6; display:block }
     footer{ margin-top:1rem; color:#777; font-size:clamp(.7rem,1.5vw,.85rem) }
+    a {
+      color: var(--ink);
+      text-decoration: none;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+    a:hover {
+      color: #fff;
+      text-shadow: 0 0 5px var(--ink);
+    }
   </style>
 </head>
 <body>
-  <h1>Teleology → Recursion → Sonata</h1>
+  <h1><a href="marx-nietzsche-gpt.html">Teleology</a> → <a href="marx-nietzsche-grok.html">Recursion</a> → <a href="https://ukb-pyro.github.io/smf/">Sonata</a> — Seed</h1>
   <canvas id="stage" aria-label="TRS animation (line → circle → ∞ → line)"></canvas>
   <footer>© 2025 Ukubona LLC</footer>
 <script>
 (() => {
   const canvas = document.getElementById('stage');
   const ctx = canvas.getContext('2d');
-
   // ----- sizing -----
   function fit(){
     const cssW = canvas.getBoundingClientRect().width;
     const cssH = cssW / (4/1.6);
     const dpr = Math.max(1, window.devicePixelRatio || 1);
-    canvas.width  = Math.floor(cssW * dpr);
+    canvas.width = Math.floor(cssW * dpr);
     canvas.height = Math.floor(cssH * dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
   }
-
   // ----- tempo -----
   const DUR = [45000, 45000, 45000, 45000]; // line→circle, circle→∞, ∞→break, UNFURL (made symmetric)
   const TWO_PI = Math.PI*2;
-  const easeIO  = t => 0.5 - 0.5*Math.cos(Math.PI*Math.min(Math.max(t,0),1)); // legato
-
+  const easeIO = t => 0.5 - 0.5*Math.cos(Math.PI*Math.min(Math.max(t,0),1)); // legato
   // ----- geometry sampling -----
   const N = 1400; // dense → smooth
   const tvals = new Float64Array(N);
   for (let i=0;i<N;i++) tvals[i] = i/N;
-
   function linePts(){
     const x=new Float64Array(N), y=new Float64Array(N);
     for(let i=0;i<N;i++){ const t=tvals[i]; x[i]=4*t-2; y[i]=0; }
@@ -63,25 +68,21 @@
     for(let i=0;i<N;i++){ const th=TWO_PI*tvals[i]; x[i]=Math.cos(th); y[i]=0.60*Math.sin(th)*Math.cos(th); }
     return [x,y];
   }
-
-  const SH_line   = linePts();
+  const SH_line = linePts();
   const SH_circle = circlePts();
-  const SH_lemni  = lemniPts();
-
+  const SH_lemni = lemniPts();
   // ∞ crossing (near origin) to open the loop
   let lemniCrossIdx=0, best=1e9;
   for(let i=0;i<N;i++){
     const xx=SH_lemni[0][i], yy=SH_lemni[1][i], r2=xx*xx+yy*yy;
     if(r2<best){ best=r2; lemniCrossIdx=i; }
   }
-
   const blend = (A,B,p) => {
     const n=A[0].length, x=new Float64Array(n), y=new Float64Array(n);
     const q=1-p;
     for(let i=0;i<n;i++){ x[i]=q*A[0][i]+p*B[0][i]; y[i]=q*A[1][i]+p*B[1][i]; }
     return [x,y];
   };
-
   function openFromClosed(A, gapFrac, k){
     const n=A[0].length, gapN=Math.max(2, Math.floor(n*gapFrac));
     const start=((k % n)+n)%n, keep=n-gapN;
@@ -89,7 +90,6 @@
     for(let i=0;i<keep;i++){ const j=(start+i)%n; x[i]=A[0][j]; y[i]=A[1][j]; }
     return [x,y];
   }
-
   // Catmull–Rom → Bézier (legato stroke)
   function drawSpline(P, {closed=false}={}){
     const n=P.length;
@@ -114,10 +114,8 @@
     ctx.shadowBlur=6;
     ctx.stroke();
   }
-
   // persistent precomputation for unfurl
   let opened_unit = null, target_unit = null;
-
   function prepareUnfurl(){
     const gap=0.22;
     opened_unit = openFromClosed(SH_lemni, gap, lemniCrossIdx);
@@ -132,23 +130,18 @@
     }
     target_unit = [target_x, target_y];
   }
-
   function frame(now){
     fit();
-
-    const w  = canvas.width / (window.devicePixelRatio||1);
-    const h  = canvas.height / (window.devicePixelRatio||1);
+    const w = canvas.width / (window.devicePixelRatio||1);
+    const h = canvas.height / (window.devicePixelRatio||1);
     const cx = w/2, cy = h/2;
-    const r  = Math.min(w,h)*0.38;
-
+    const r = Math.min(w,h)*0.38;
     const TOTAL = DUR.reduce((a,b)=>a+b,0);
     const t = now % TOTAL;
     let leg=0, acc=0;
     for(let i=0;i<DUR.length;i++){ if(t < acc + DUR[i]){ leg=i; break; } acc += DUR[i]; }
     const local = (t - acc) / DUR[leg];
-
     ctx.clearRect(0,0,w,h);
-
     if (leg === 0){
       const m = easeIO(local);
       const unit = blend(SH_line, SH_circle, m);
@@ -172,16 +165,13 @@
     }
     else {
       if (!opened_unit) prepareUnfurl();
-
       const m = easeIO(local);
       const unit = blend(opened_unit, target_unit, m);
       const P = Array.from(unit[0], (_,i)=>[cx + unit[0][i]*r, cy + unit[1][i]*r]);
       drawSpline(P, {closed:false});
     }
-
     requestAnimationFrame(frame);
   }
-
   fit();
   requestAnimationFrame(frame);
   window.addEventListener('resize', fit, {passive:true});
