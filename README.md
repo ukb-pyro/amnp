@@ -1,0 +1,3 @@
+- [My Rug](https://github.com/ukb-pyro/fast-slow) ❤️
+- [Personas](https://github.com/ukb-pyro/the-rug)
+- [Anime](https://ukb-pyro.github.io/grok-4/)
