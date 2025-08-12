@@ -35,6 +35,10 @@
   .tag{display:inline-block;padding:2px 8px;border-radius:999px;background:#12171c;border:1px solid var(--edge);font-size:12px;color:var(--muted);margin-right:6px}
   .hint{margin-top:8px;color:var(--muted);font-size:12px}
 
+  .epigraph{background:#0b0f13;border:1px dashed var(--edge);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+  .epigraph p{margin:6px 0;color:var(--muted);font-style:italic}
+  .epigraph p strong{color:var(--text);font-style:normal}
+
   .legend{margin-top:8px}
   .legend .row{display:flex;align-items:center;gap:8px;margin:6px 0}
   .swatch{width:12px;height:12px;border-radius:3px;border:1px solid var(--edge)}
@@ -54,6 +58,7 @@
 
   .ring{fill:none;stroke:var(--ring);stroke-width:1.2}
   .arrow{stroke:#4c5966;stroke-width:1.4;fill:none;marker-end:url(#arrowhead)}
+  .cycle{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:4 5;opacity:.65}
   .connector{stroke:var(--accent);stroke-width:1.6;opacity:.0}
   .glow{filter: drop-shadow(0 0 22px var(--glow))}
 
@@ -69,7 +74,7 @@
   .caption.title{fill:var(--text);font-size:14px}
   .caption.sub{font-size:12px}
   .pill-bg{fill:#12171c;stroke:var(--edge);stroke-width:1}
-  .pill-text{fill:var(--text);font-size:12px;font-weight:700}
+  .pill-text{fill:#e7efe9;font-size:12px;font-weight:700}
 
   /* tertiary (Frailty) micro-pentad */
   .microHidden{opacity:0;pointer-events:none}
@@ -92,6 +97,13 @@
           <li><strong>Ukubona:</strong> the perspectival orchestrator inside health systems.</li>
         </ul>
         <div class="hint">Click <strong>Enterprise</strong> to open the inner pentad. Toggle Nietzsche ⇄ Marx to see the class/role alignment.</div>
+      </div>
+
+      <!-- Epigraph -->
+      <div class="epigraph" aria-label="Epigraph">
+        <p>— <strong>We are not original</strong></p>
+        <p>— Think of us as <strong>seeds</strong></p>
+        <p>— Our forbears were the <strong>fruit</strong></p>
       </div>
 
       <div class="box" id="panel">
@@ -147,6 +159,9 @@
         <!-- Outer nodes -->
         <g id="outerNodes"></g>
 
+        <!-- Subtle fruit → seed cycle arc -->
+        <g id="outerCycle"></g>
+
         <!-- Connectors to inner ring (toggled) -->
         <g id="connectors"></g>
 
@@ -175,15 +190,16 @@
 const VIEWS = {
   default: {
     legend: [
-      {name:'God', c:'var(--p1)'}, {name:'Animal', c:'var(--p2)'}, {name:'Man', c:'var(--p3)'},
+      {name:'God (Plants/Seed)', c:'var(--p1)'}, {name:'Animal', c:'var(--p2)'}, {name:'Man', c:'var(--p3)'},
       {name:'Enterprise', c:'var(--p4)'}, {name:'Systems', c:'var(--p5)'},
       {name:'Play', c:'var(--i1)'}, {name:'Ontology', c:'var(--i2)'}, {name:'Agency', c:'var(--i3)'},
       {name:'Epistemology', c:'var(--i4)'}, {name:'Frailty', c:'var(--i5)'}
     ],
     outer: [
-      { key:"god",        label:"God",        color:"var(--p1)", detail:[
+      { key:"god",        label:"God (Plants/Seed)", color:"var(--p1)", detail:[
         "Creative origin; generative principle.",
-        "Start of the game loop (metamorphosis)."
+        "Start of the game loop (metamorphosis).",
+        "Seed ⇄ Fruit recursion: our forebears are the fruit that bore these seeds."
       ]},
       { key:"animal",     label:"Animal",     color:"var(--p2)", detail:[
         "Instinct, sensation, pre-reflective adaptation.",
@@ -235,7 +251,7 @@ const VIEWS = {
 
   nm: {
     legend: [
-      {name:'God → Bourgeois/Land/Plants', c:'var(--p1)'}, {name:'Animal → Serf', c:'var(--p2)'},
+      {name:'God (Plants/Seed) → Bourgeois/Land/Plants', c:'var(--p1)'}, {name:'Animal → Serf', c:'var(--p2)'},
       {name:'Man → Worker', c:'var(--p3)'}, {name:'Enterprise → User/APIs', c:'var(--p4)'},
       {name:'Systems → Platform', c:'var(--p5)'},
       {name:'Play (child)', c:'var(--i1)'}, {name:'Ontology (categories)', c:'var(--i2)'},
@@ -243,9 +259,10 @@ const VIEWS = {
       {name:'Frailty (camel)', c:'var(--i5)'}
     ],
     outer: [
-      { key:"god",        label:"God — Bourgeois/Land/Plants", color:"var(--p1)", detail:[
+      { key:"god",        label:"God (Plants/Seed) — Bourgeois/Land/Plants", color:"var(--p1)", detail:[
         "Ownership of origin inputs (myth/resource/seed).",
-        "Sets frames that feel 'natural'. Nietzsche: noble valuation."
+        "Sets frames that feel 'natural'. Nietzsche: noble valuation.",
+        "Seed ⇄ Fruit recursion: our forebears are the fruit that bore these seeds."
       ]},
       { key:"animal",     label:"Animal — Serf", color:"var(--p2)", detail:[
         "Necessity-bound labor; subsistence coupling to land.",
@@ -316,6 +333,7 @@ const frailtyCluster = document.getElementById('frailtyCluster');
 const frailtyNodesG  = document.getElementById('frailtyNodes');
 const frailtyArrowsG = document.getElementById('frailtyArrows');
 const toggleNM = document.getElementById('toggleNM');
+const outerCycleG = document.getElementById('outerCycle');
 
 /* ======================= State & Utils ======================= */
 let VIEW = 'default';
@@ -365,25 +383,44 @@ function drawLegend(){
 
 /* ======================= Outer ring ======================= */
 function drawOuter(){
-  clear(outerNodesG); clear(document.getElementById('outerArrows'));
+  clear(outerNodesG); clear(document.getElementById('outerArrows')); clear(outerCycleG);
   const pos=polar(5,300);
   const arrowsG=document.getElementById('outerArrows');
+
+  // clockwise arrows among nodes
   for(let i=0;i<5;i++){
     const [x1,y1]=pos[i]; const [x2,y2]=pos[(i+1)%5];
     const p=document.createElementNS(svgNS,'path');
     const mx=(x1+x2)/2, my=(y1+y2)/2; const cx=mx*0.9, cy=my*0.9;
     p.setAttribute('d','M '+x1+' '+y1+' Q '+cx+' '+cy+' '+x2+' '+y2);
     p.setAttribute('class','arrow');
+    p.setAttribute('marker-end','url(#arrowhead)');
     arrowsG.appendChild(p);
   }
+
+  // subtle dashed cycle arc (fruit → seed) from Systems (idx 4) toward God (idx 0)
+  {
+    const [sx,sy]=pos[4]; // systems
+    const [gx,gy]=pos[0]; // god
+    const q=document.createElementNS(svgNS,'path');
+    const midx=(sx+gx)/2, midy=(sy+gy)/2;
+    const ctrlx=midx*1.05, ctrly=midy*1.05; // gentle bow outward
+    q.setAttribute('d','M '+sx+' '+sy+' Q '+ctrlx+' '+ctrly+' '+gx+' '+gy);
+    q.setAttribute('class','cycle');
+    outerCycleG.appendChild(q);
+  }
+
+  // nodes
   VIEWS[VIEW].outer.forEach((d,i)=>{
     const [x,y]=pos[i];
     const node=makeNode({x,y,r:54,label:d.label,color:d.color,key:d.key,cls:'node fade-in delay-'+(i+1)+' glow'}, onOuterClick);
     outerNodesG.appendChild(node);
   });
+
   setPanel('Metamorphosis', ['Outer ring', VIEW==='nm'?'Nietzsche/Marx view':'Default view'], [
     'Click a node to see details.',
-    'Click Enterprise to reveal the nested Metaphysics pentad (FEAOP).'
+    'Click Enterprise to reveal the nested Metaphysics pentad (FEAOP).',
+    'Fruit → Seed: Systems cycles back to God.'
   ]);
 }
 
@@ -409,6 +446,7 @@ function drawInner(show){
     const mx=(X1+X2)/2, my=(Y1+Y2)/2; const cx=baseX+(mx-baseX)*0.9, cy=baseY+(my-baseY)*0.9;
     p.setAttribute('d','M '+X1+' '+Y1+' Q '+cx+' '+cy+' '+X2+' '+Y2);
     p.setAttribute('class','arrow');
+    p.setAttribute('marker-end','url(#arrowhead)');
     arrowsG.appendChild(p);
   }
   const keys=['play','ontology','agency','epistemology','frailty'];
@@ -439,6 +477,7 @@ function drawFrailty(show){
     const X1=cx+x1, Y1=cy+y1, X2=cx+x2, Y2=cy+y2; const mx=(X1+X2)/2, my=(Y1+Y2)/2; const cx2=cx+(mx-cx)*0.9, cy2=cy+(my-cy)*0.9;
     p.setAttribute('d','M '+X1+' '+Y1+' Q '+cx2+' '+cy2+' '+X2+' '+Y2);
     p.setAttribute('class','arrow');
+    p.setAttribute('marker-end','url(#arrowhead)');
     frailtyArrowsG.appendChild(p);
   }
   // tiny nodes
