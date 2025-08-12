@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teleology → Recursion → Sonata — Seed</title>
+  <style>
+    :root{ --bg:#111; --text:#eee; --ink:#9ad1ff }
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font:16px/1.5 "Courier New", Courier, monospace;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-height:100vh; padding:1rem; gap:1rem;
+    }
+    h1{ font-size:clamp(1rem,2.5vw,1.4rem); letter-spacing:.1em; margin:0 0 1rem; text-align:center; color:#ddd }
+    canvas{ max-width:86vmin; height:auto; aspect-ratio:4/1.6; display:block }
+    footer{ margin-top:1rem; color:#777; font-size:clamp(.7rem,1.5vw,.85rem) }
+  </style>
+</head>
+<body>
+  <h1>Teleology → Recursion → Sonata</h1>
+  <canvas id="stage" aria-label="TRS animation (line → circle → ∞ → line)"></canvas>
+  <footer>© 2025 Ukubona LLC</footer>
+<script>
+(() => {
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d');
+
+  // ----- sizing -----
+  function fit(){
+    const cssW = canvas.getBoundingClientRect().width;
+    const cssH = cssW / (4/1.6);
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width  = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  // ----- tempo -----
+  const DUR = [45000, 45000, 45000, 45000]; // line→circle, circle→∞, ∞→break, UNFURL (made symmetric)
+  const TWO_PI = Math.PI*2;
+  const easeIO  = t => 0.5 - 0.5*Math.cos(Math.PI*Math.min(Math.max(t,0),1)); // legato
+
+  // ----- geometry sampling -----
+  const N = 1400; // dense → smooth
+  const tvals = new Float64Array(N);
+  for (let i=0;i<N;i++) tvals[i] = i/N;
+
+  function linePts(){
+    const x=new Float64Array(N), y=new Float64Array(N);
+    for(let i=0;i<N;i++){ const t=tvals[i]; x[i]=4*t-2; y[i]=0; }
+    return [x,y];
+  }
+  function circlePts(){
+    const x=new Float64Array(N), y=new Float64Array(N);
+    for(let i=0;i<N;i++){ const th=TWO_PI*tvals[i]; x[i]=Math.cos(th); y[i]=Math.sin(th); }
+    return [x,y];
+  }
+  function lemniPts(){
+    const x=new Float64Array(N), y=new Float64Array(N);
+    for(let i=0;i<N;i++){ const th=TWO_PI*tvals[i]; x[i]=Math.cos(th); y[i]=0.60*Math.sin(th)*Math.cos(th); }
+    return [x,y];
+  }
+
+  const SH_line   = linePts();
+  const SH_circle = circlePts();
+  const SH_lemni  = lemniPts();
+
+  // ∞ crossing (near origin) to open the loop
+  let lemniCrossIdx=0, best=1e9;
+  for(let i=0;i<N;i++){
+    const xx=SH_lemni[0][i], yy=SH_lemni[1][i], r2=xx*xx+yy*yy;
+    if(r2<best){ best=r2; lemniCrossIdx=i; }
+  }
+
+  const blend = (A,B,p) => {
+    const n=A[0].length, x=new Float64Array(n), y=new Float64Array(n);
+    const q=1-p;
+    for(let i=0;i<n;i++){ x[i]=q*A[0][i]+p*B[0][i]; y[i]=q*A[1][i]+p*B[1][i]; }
+    return [x,y];
+  };
+
+  function openFromClosed(A, gapFrac, k){
+    const n=A[0].length, gapN=Math.max(2, Math.floor(n*gapFrac));
+    const start=((k % n)+n)%n, keep=n-gapN;
+    const x=new Float64Array(keep), y=new Float64Array(keep);
+    for(let i=0;i<keep;i++){ const j=(start+i)%n; x[i]=A[0][j]; y[i]=A[1][j]; }
+    return [x,y];
+  }
+
+  // Catmull–Rom → Bézier (legato stroke)
+  function drawSpline(P, {closed=false}={}){
+    const n=P.length;
+    const get=i=>{
+      if(closed){ const k=(i%n+n)%n; return P[k]; }
+      return P[Math.min(Math.max(i,0), n-1)];
+    };
+    ctx.beginPath();
+    ctx.moveTo(P[0][0], P[0][1]);
+    for(let i=0;i<n-1;i++){
+      const p0=get(i-1), p1=get(i), p2=get(i+1), p3=get(i+2);
+      const c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+      const c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+      ctx.bezierCurveTo(c1x,c1y,c2x,c2y,p2[0],p2[1]);
+    }
+    if(closed) ctx.closePath();
+    const w=canvas.width/(window.devicePixelRatio||1);
+    ctx.lineWidth=Math.max(2, Math.min(6, w*0.006));
+    ctx.lineJoin="round"; ctx.lineCap="round";
+    ctx.strokeStyle="#9ad1ff";
+    ctx.shadowColor="rgba(154,209,255,.16)";
+    ctx.shadowBlur=6;
+    ctx.stroke();
+  }
+
+  // persistent precomputation for unfurl
+  let opened_unit = null, target_unit = null;
+
+  function prepareUnfurl(){
+    const gap=0.22;
+    opened_unit = openFromClosed(SH_lemni, gap, lemniCrossIdx);
+    const keep = opened_unit[0].length;
+    const target_x = new Float64Array(keep);
+    const target_y = new Float64Array(keep);
+    const left = -2, right = 2;
+    for(let i=0; i<keep; i++){
+      const tt = i / (keep - 1);
+      target_x[i] = left + (right - left) * tt;
+      target_y[i] = 0;
+    }
+    target_unit = [target_x, target_y];
+  }
+
+  function frame(now){
+    fit();
+
+    const w  = canvas.width / (window.devicePixelRatio||1);
+    const h  = canvas.height / (window.devicePixelRatio||1);
+    const cx = w/2, cy = h/2;
+    const r  = Math.min(w,h)*0.38;
+
+    const TOTAL = DUR.reduce((a,b)=>a+b,0);
+    const t = now % TOTAL;
+    let leg=0, acc=0;
+    for(let i=0;i<DUR.length;i++){ if(t < acc + DUR[i]){ leg=i; break; } acc += DUR[i]; }
+    const local = (t - acc) / DUR[leg];
+
+    ctx.clearRect(0,0,w,h);
+
+    if (leg === 0){
+      const m = easeIO(local);
+      const unit = blend(SH_line, SH_circle, m);
+      const P = Array.from(unit[0], (_,i)=>[cx+unit[0][i]*r, cy+unit[1][i]*r]);
+      drawSpline(P, {closed:false});
+      opened_unit=null;
+    }
+    else if (leg === 1){
+      const m = easeIO(local);
+      const unit = blend(SH_circle, SH_lemni, m);
+      const P = Array.from(unit[0], (_,i)=>[cx+unit[0][i]*r, cy+unit[1][i]*r]);
+      drawSpline(P, {closed:true});
+      opened_unit=null;
+    }
+    else if (leg === 2){
+      const g = 0.22 * easeIO(local);
+      const unit = openFromClosed(SH_lemni, g, lemniCrossIdx);
+      const P = Array.from(unit[0], (_,i)=>[cx+unit[0][i]*r, cy+unit[1][i]*r]);
+      drawSpline(P, {closed:false});
+      if (g>0.219 && !opened_unit) prepareUnfurl();
+    }
+    else {
+      if (!opened_unit) prepareUnfurl();
+
+      const m = easeIO(local);
+      const unit = blend(opened_unit, target_unit, m);
+      const P = Array.from(unit[0], (_,i)=>[cx + unit[0][i]*r, cy + unit[1][i]*r]);
+      drawSpline(P, {closed:false});
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  fit();
+  requestAnimationFrame(frame);
+  window.addEventListener('resize', fit, {passive:true});
+})();
+</script>
+</body>
+</html>
