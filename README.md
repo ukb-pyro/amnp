@@ -125,5 +125,5 @@ Imagine **five concentric pentagons**:
 
 I can render this as an **interactive HTML fractal map** where clicking “Man → Recursion → Nietzsche” zooms into its full micro-table and contextual notes.
 
-Do you want me to **code that HTML version** now so you can drop it straight into your Ukubona site?
+Do you want me to **code that HTML version** now so you can drop it straight into your Ukubona [site](ukb-pyro.github.io/suis/)?
 
