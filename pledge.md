@@ -2,7 +2,7 @@ Short answer: yes—you’ve got a special duty. If Ukubona builds instruments t
 
 Here’s a tight, operational “Anti-Orwellian” playbook you can ship into Ukubona today:
 
-### 1) North-star & scope
+### 1) North-star & scope 
 
 * **Purpose lock-in:** Declare—and version control—the *legitimate* purposes of each system. Anything outside requires a change process + public diff.
 * **Prohibited uses:** Ban identity-based targeting, protester tracking, and workplace surveillance. Map these to “unacceptable risk” categories so the default is **refuse**. (EU AI Act provides a usable template.) ([European Parliament][3], [Digital Strategy EU][4])
