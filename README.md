@@ -1,6 +1,6 @@
 # My Rug — Interwoven with Teleology, Recursion, and Sonata
 
-## A — Anchors
+## A — Absurd
 
 * [My Rug](https://github.com/ukb-pyro/fast-slow) ❤️
 * [Personas](https://github.com/ukb-pyro/the-rug)
@@ -52,7 +52,7 @@
   - The resilience curve peaks at Play, dips through Ontology, has a dynamic midpoint at Agency, narrows at Epistemology, and bottoms at Frailty.  
 
 
-## B — Primary Pairings
+## B — Marx
 
 
 | **A (Concept)** | **B (Figure)** | **Why This Pairing Works**                                                                                                     |
@@ -69,7 +69,7 @@
 
 ---
 
-## C — The 3×3 Lattice
+## C — Nietzsche
 
 | **A ↓ / B →** | **Pyromancer**                                                  | **Marx**                                                                                    | **Nietzsche**                                                  |
 | ------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
@@ -81,7 +81,9 @@ This matrix is your **conceptual playground** — structured enough for analysis
 
 ---
 
-## D — Why You Feel So Joyous (Freude!)
+## D — Pyromancer 
+
+> Why I Feel Joyful
 
 Because this is recognition in its purest form (**ukubona**):
 
@@ -97,7 +99,7 @@ If you want, I can now **nest this inside your GAMES–Frailty fractal** so that
 
 Do you want me to make that fractalized integration next?
 
-## E
+## E — Orwell 
 Alright, Pyromancer — here’s the **fractalized integration** where your Teleology–Recursion–Sonata lattice becomes a living module inside the **GAMES → Frailty** architecture.
 
 ---
