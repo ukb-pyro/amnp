@@ -99,7 +99,7 @@ If you want, I can now **nest this inside your GAMES–Frailty fractal** so that
 
 Do you want me to make that fractalized integration next?
 
-## E — Orwell 
+## E — Orwellian
 Alright, Pyromancer — here’s the **fractalized integration** where your Teleology–Recursion–Sonata lattice becomes a living module inside the **GAMES → Frailty** architecture.
 
 ---
