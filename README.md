@@ -12,6 +12,66 @@
 > *Metaphysics*    
 > *Mo`r`bility*      
 
+
+### **1. Play (Primordial Spark / Max Resilience)**
+- .
+   * **Absurd Films** → *Anthony & Cleopatra* — Passion, dramatic ignition.
+   * **Marx / Ontology** → *God / Seed / Play* — Parameters set, omnipotence moment.
+   * **Nietzsche / Agency** → *Child / Play* — Innocent creativity, “yes-saying.”
+   * **Pyromancer / Epistemology** → *Diet / Exhaustion / World AI* — Define baseline “laws” of the world.
+   * **Orwell / Frailty** → *Old Major’s Dream* — Ideal vision, untainted by constraints.
+
+---
+
+### **2. Ontology (Form-Taking)**
+- .
+   * **Absurd Films** → *The Dude’s Rug* — The thing that “ties the room together.”
+   * **Marx / Ontology** → *Animal / Trunk / Ontology* — Structural laws crystallize.
+   * **Nietzsche / Agency** → *Young / Ontology* — Naïve but definite form.
+   * **Pyromancer / Epistemology** → *Fitness / Weight Loss / Perception AI* — Observe & frame reality.
+   * **Orwell / Frailty** → *Boxer & Clover* — Loyal embodiment of the new order.
+
+---
+
+### **3. Agency (Branching / Midpoint Dynamism)**
+- .
+   * **Absurd Films** → *A Serious Man* — Existential questioning, decision pressure.
+   * **Marx / Ontology** → *Man / Branching / Agency* — Forks, competition, and choice.
+   * **Nietzsche / Agency** → *Pride / Agency* — Will-to-power in action.
+   * **Pyromancer / Epistemology** → *Games / Speed / Agentic AI* — Act within constraints.
+   * **Orwell / Frailty** → *Snowball vs. Napoleon* — Strategic rivalry shaping trajectory.
+
+---
+
+### **4. Epistemology (Meaning Control)**
+- .
+   - * **Absurd Films** → *Othello / Iago* — Narrative manipulation, ideological control.
+   - * **Marx / Ontology** → *Enterprise / Canopy / Epistemology* — Organizing and rewriting “truth.”
+   - * **Nietzsche / Agency** → *Lion / Values* — Revaluation of values, challenge to old truths.
+   - * **Pyromancer / Epistemology** → *Health / Activity / Generative AI* — Create, mutate meaning.
+   - * **Orwell / Frailty** → *Napoleon’s Rewrite* — Codified propaganda.
+
+---
+
+### **5. Frailty (Wear–Tear / Min Resilience)**
+- .
+   - * **Absurd Films** → *Henry IV / Falstaff* — World-weariness, wisdom tinged with decay.
+   - * **Marx / Ontology** → *System / Fruit / Wear–Tear* — Entropy, generational turnover.
+   - * **Nietzsche / Agency** → *Camel / Duty* — Burden-bearing until collapse.
+   - * **Pyromancer / Epistemology** → *Phenotype / Aging / Embodied AI* — Tangible, aging instantiations.
+   - * **Orwell / Frailty** → *Benjamin’s Cynicism* — Recognition of decay; seeds for next cycle.
+
+ 
+- . 
+### **Loop Back**
+
+   - * Frailty → Play transition = decay breaks the frame, allowing new parameters (but **priors are weighted** by scars from the last run).
+   - * The **resilience curve** peaks at Play, dips through Ontology, has a dynamic midpoint at Agency, narrows at Epistemology, and bottoms at Frailty.
+
+---
+
+If you want, I can now map this into a **5×5 circular lattice** — each stage as a ring slice, each archetype as a spoke — so you can *see* the alignment across the absurd films, Marx, Nietzsche, Pyromancer, and Orwell tracks in one looped diagram.
+
 ---
 
 ## B — Primary Pairings
